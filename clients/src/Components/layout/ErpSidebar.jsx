@@ -41,7 +41,7 @@ const MENU_STRUCTURE = [
     group: "Restaurant",
     groupKey: "Restaurant",
     items: [
-      { key: "Foods", label: "Foods & Menu", icon: FiCoffee, permissions: ["food_access", "admin_access"] },
+      { key: "Foods", label: "Foods", icon: FiCoffee, permissions: ["food_access", "admin_access"] },
       { key: "Tables", label: "Tables", icon: FiLayers, permissions: ["table_access", "admin_access"] },
       { key: "Menus", label: "Menu Categories", icon: FiShoppingBag, permissions: ["panel_access", "admin_access"], adminTab: "Menus" },
     ],

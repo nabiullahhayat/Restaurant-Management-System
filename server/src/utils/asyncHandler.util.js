@@ -7,3 +7,5 @@ export const asyncHandler = (fn)=> async (req, res, next)=>{
         return next(new ErrorHandler(error.statusCode || error.status || 500, error.message));
     }
 }
+
+

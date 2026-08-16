@@ -32,28 +32,46 @@ const TYPES = [
 const toMoney = (n) => `$${Number(n || 0).toLocaleString()}`;
 
 const downloadCsv = (rows, filename) => {
-  const escape = (v) => `"${String(v ?? "").replaceAll('"', '""')}"`;
-  const header = ["date", "type", "description", "amount"].map(escape).join(",");
-  const body = rows
-    .map((r) =>
-      [
-        new Date(r.date).toISOString(),
-        r.referenceType,
-        r.description,
-        Number(r.totalDebit || r.totalCredit || 0),
-      ]
-        .map(escape)
-        .join(",")
-    )
-    .join("\n");
-  const csv = `${header}\n${body}`;
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  try {
+    if (!rows || rows.length === 0) {
+      console.warn("No data to export");
+      return;
+    }
+
+    const escape = (v) => `"${String(v ?? "").replaceAll('"', '""')}"`;
+    const header = ["date", "type", "description", "amount"].map(escape).join(",");
+    const body = rows
+      .map((r) =>
+        [
+          new Date(r.date).toISOString(),
+          r.referenceType,
+          r.description,
+          Number(r.totalDebit || r.totalCredit || 0),
+        ]
+          .map(escape)
+          .join(",")
+      )
+      .join("\n");
+    const csv = `${header}\n${body}`;
+    
+    // Add UTF-8 BOM for better compatibility with Excel
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    
+    // Append to body, click, and remove
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Clean up the URL object after a short delay
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+  } catch (error) {
+    console.error("Download failed:", error);
+  }
 };
 
 export default function Dakhal() {
@@ -194,7 +212,12 @@ export default function Dakhal() {
             <button
               type="button"
               className="btn-primary"
-              onClick={() => downloadCsv(tx.rows || [], `dakhal-${preset}-${type}.csv`)}
+              onClick={() => {
+                downloadCsv(tx.rows || [], `dakhal-${preset}-${type}.csv`);
+                if ((tx.rows || []).length > 0) {
+                  toast.success(t("ExportedSuccessfully", { defaultValue: "File exported successfully" }));
+                }
+              }}
               disabled={(tx.rows || []).length === 0}
             >
               {t("Export", { defaultValue: "Export" })}

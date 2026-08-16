@@ -19,7 +19,7 @@ const ADMIN_PANEL_TABS = ["Staff", "Garsons", "Role", "Menus"];
 const PAGE_TITLES = {
   Overview: "Dashboard",
   OrderHistory: "Order History",
-  Foods: "Foods & Menu",
+  Foods: "Foods",
   Tables: "Tables",
   Staff: "Staff Management",
   Garsons: "System Users",
